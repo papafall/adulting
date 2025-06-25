@@ -3,7 +3,7 @@
     "name": "Gym Membership",
     "amount": 80,
     "dueDay": 5,
-    "paid": 1
+    "paid": 0
   },
   {
     "name": "Streaming Service",

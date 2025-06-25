@@ -81,9 +81,23 @@ function ExpensesTable({
     updateExpenses(api, updated);
   };
 
+  const handleClearPaid = () => {
+    const updated = expenses.map((e) => ({ ...e, paid: 0 as const }));
+    setExpenses(updated);
+    updateExpenses(api, updated);
+  };
+
   return (
     <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow p-2 sm:p-6 mb-8">
-      <h2 className="text-lg sm:text-xl font-bold mb-4">{title}</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg sm:text-xl font-bold">{title}</h2>
+        <button
+          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs sm:text-sm"
+          onClick={handleClearPaid}
+        >
+          Clear All Paid
+        </button>
+      </div>
       {/* Desktop Table */}
       <div className="hidden sm:block w-full overflow-x-auto">
         <table className="min-w-[500px] w-full border-collapse mb-4 text-xs sm:text-base">
