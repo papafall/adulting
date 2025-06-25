@@ -21,6 +21,33 @@ async function updateExpenses(api: string, data: Expense[]) {
   });
 }
 
+// ToggleSwitch component
+function ToggleSwitch({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+        checked ? "bg-green-500" : "bg-gray-300"
+      }`}
+      aria-pressed={checked}
+    >
+      <span
+        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+          checked ? "translate-x-5" : "translate-x-1"
+        }`}
+      />
+      <span className="sr-only">Toggle Paid</span>
+    </button>
+  );
+}
+
 function ExpensesTable({ title, api }: { title: string; api: string }) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,9 +139,7 @@ function ExpensesTable({ title, api }: { title: string; api: string }) {
                   />
                 </td>
                 <td className="p-2 text-center">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4"
+                  <ToggleSwitch
                     checked={!!e.paid}
                     onChange={() => handleChange(idx, "paid", e.paid ? 0 : 1)}
                   />
@@ -174,13 +199,11 @@ function ExpensesTable({ title, api }: { title: string; api: string }) {
             </div>
             <div className="flex items-center justify-between mt-2">
               <label className="flex items-center gap-2 text-xs font-semibold">
-                <input
-                  type="checkbox"
-                  className="w-5 h-5"
+                <ToggleSwitch
                   checked={!!e.paid}
                   onChange={() => handleChange(idx, "paid", e.paid ? 0 : 1)}
                 />
-                Paid
+                <span>{e.paid ? "Paid" : "Unpaid"}</span>
               </label>
               <button
                 className="text-red-500 hover:text-red-700 font-bold text-xl"
