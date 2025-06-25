@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Gym Membership",
+    "amount": 80,
+    "dueDay": 5,
+    "paid": 1
+  },
+  {
+    "name": "Streaming Service",
+    "amount": 15,
+    "dueDay": 20,
+    "paid": 0
+  }
+]

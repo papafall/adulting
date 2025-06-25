@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Rent",
+    "amount": 1800,
+    "dueDay": 1,
+    "paid": 0
+  },
+  {
+    "name": "Electricity",
+    "amount": 100,
+    "dueDay": 10,
+    "paid": 0
+  },
+  {
+    "name": "Internet",
+    "amount": 60,
+    "dueDay": 15,
+    "paid": 0
+  },
+  {
+    "name": "Water",
+    "amount": 30,
+    "dueDay": 1,
+    "paid": 0
+  }
+]
