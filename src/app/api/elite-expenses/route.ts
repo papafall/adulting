@@ -12,9 +12,10 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  // Replace all rows with the new data
-  await supabase.from(TABLE).delete().neq("id", 0);
-  const { error } = await supabase.from(TABLE).insert(body);
+  // Upsert (insert or update) the provided rows
+  const { error } = await supabase
+    .from(TABLE)
+    .upsert(body, { onConflict: "id" });
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
