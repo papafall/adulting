@@ -8,11 +8,6 @@ interface Expense {
   paid: 0 | 1;
 }
 
-async function fetchExpenses(api: string): Promise<Expense[]> {
-  const res = await fetch(api);
-  return res.json();
-}
-
 async function updateExpenses(api: string, data: Expense[]) {
   await fetch(api, {
     method: "POST",
@@ -48,17 +43,17 @@ function ToggleSwitch({
   );
 }
 
-function ExpensesTable({ title, api }: { title: string; api: string }) {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchExpenses(api).then((data) => {
-      setExpenses(data);
-      setLoading(false);
-    });
-  }, [api]);
-
+function ExpensesTable({
+  title,
+  api,
+  expenses,
+  setExpenses,
+}: {
+  title: string;
+  api: string;
+  expenses: Expense[];
+  setExpenses: React.Dispatch<React.SetStateAction<Expense[]>>;
+}) {
   const handleChange = (
     idx: number,
     key: keyof Expense,
@@ -85,8 +80,6 @@ function ExpensesTable({ title, api }: { title: string; api: string }) {
     setExpenses(updated);
     updateExpenses(api, updated);
   };
-
-  if (loading) return <div>Loading {title}...</div>;
 
   return (
     <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow p-2 sm:p-6 mb-8">
@@ -227,52 +220,55 @@ function ExpensesTable({ title, api }: { title: string; api: string }) {
 }
 
 export default function Home() {
-  const [currentTotals, setCurrentTotals] = useState({ paid: 0, unpaid: 0 });
-  const [eliteTotals, setEliteTotals] = useState({ paid: 0, unpaid: 0 });
+  const [currentExpenses, setCurrentExpenses] = useState<Expense[]>([]);
+  const [eliteExpenses, setEliteExpenses] = useState<Expense[]>([]);
 
-  // Helper to fetch and sum totals for a given API
-  async function fetchTotals(api: string) {
-    const res = await fetch(api);
-    const data: Expense[] = await res.json();
-    const paid = data
-      .filter((e) => e.paid)
-      .reduce((sum, e) => sum + Number(e.amount), 0);
-    const unpaid = data
-      .filter((e) => !e.paid)
-      .reduce((sum, e) => sum + Number(e.amount), 0);
-    return { paid, unpaid };
-  }
-
+  // Fetch initial data on mount
   useEffect(() => {
-    async function updateAllTotals() {
-      setCurrentTotals(await fetchTotals("/api/current-expenses"));
-      setEliteTotals(await fetchTotals("/api/elite-expenses"));
-    }
-    updateAllTotals();
-    // Listen for changes in the page (naive: refetch every 1s)
-    const interval = setInterval(updateAllTotals, 1000);
-    return () => clearInterval(interval);
+    fetch("/api/current-expenses")
+      .then((res) => res.json())
+      .then(setCurrentExpenses);
+    fetch("/api/elite-expenses")
+      .then((res) => res.json())
+      .then(setEliteExpenses);
   }, []);
+
+  // Calculate totals instantly from local state
+  const currentUnpaid = currentExpenses
+    .filter((e) => !e.paid)
+    .reduce((sum, e) => sum + Number(e.amount), 0);
+  const eliteUnpaid = eliteExpenses
+    .filter((e) => !e.paid)
+    .reduce((sum, e) => sum + Number(e.amount), 0);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black flex flex-col items-center p-2 sm:p-8 pb-24">
       <h1 className="text-2xl sm:text-3xl font-bold mb-8 mt-4 text-center">
         Budgeting Sheet
       </h1>
-      <ExpensesTable title="Current Expenses" api="/api/current-expenses" />
-      <ExpensesTable title="Elite Expenses" api="/api/elite-expenses" />
+      <ExpensesTable
+        title="Current Expenses"
+        api="/api/current-expenses"
+        expenses={currentExpenses}
+        setExpenses={setCurrentExpenses}
+      />
+      <ExpensesTable
+        title="Elite Expenses"
+        api="/api/elite-expenses"
+        expenses={eliteExpenses}
+        setExpenses={setEliteExpenses}
+      />
       {/* Sticky Totals Bar */}
-      <div className="fixed bottom-0 left-0 w-full z-50 bg-white/95 dark:bg-gray-900/95 border-t border-gray-200 dark:border-gray-700 shadow-lg flex flex-row justify-between items-center py-3 px-4 text-base sm:text-lg font-semibold">
-        <div>
+      <div className="fixed bottom-0 left-0 w-full z-50 bg-white/95 dark:bg-gray-900/95 border-t border-gray-200 dark:border-gray-700 shadow-lg flex flex-col sm:flex-row justify-between items-center py-3 px-4 text-base sm:text-lg font-semibold">
+        <div className="self-start sm:self-auto w-full sm:w-auto flex justify-start">
           <span>
             Current Unpaid:{" "}
-            <span className="text-red-600">${currentTotals.unpaid}</span>
+            <span className="text-red-600">${currentUnpaid}</span>
           </span>
         </div>
-        <div>
+        <div className="self-end sm:self-auto w-full sm:w-auto flex justify-end">
           <span>
-            Elite Unpaid:{" "}
-            <span className="text-red-600">${eliteTotals.unpaid}</span>
+            Elite Unpaid: <span className="text-red-600">${eliteUnpaid}</span>
           </span>
         </div>
       </div>
